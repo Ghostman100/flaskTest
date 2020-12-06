@@ -1,10 +1,27 @@
 {% extends "base.html" %}
 
 <div>
-<h1>Создание нового голосования</h1>
-    <form>
+    <h2>Создание нового голосования</h2>
+    <form action="" method="POST" name="create_poll">
         {% if kind == 'poll' %}
+            {{ form.hidden_tag() }}
 
+            <p>
+                <label>Название</label>
+                {{ form.title }}
+            </p>
+            <p>
+                <label>Тип голосования</label>
+                {{ form.kind }}
+            </p>
+            <p>
+                <label>Возможность повторного голосования</label>
+                {{ form.repeat_type }}
+            </p>
+            <p>
+                <label>Вопросы</label>
+                {{ form.questions }}
+            </p>
         {% else %}
 
         {% endif %}

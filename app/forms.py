@@ -14,8 +14,14 @@ class RegisterForm(FlaskForm):
     password2 = PasswordField('password2', validators=[DataRequired(), Length(min=4, max=100)])
 
 
-class NewPoll(FlaskForm):
-    questions = FieldList(StringField('questions'))
+class QuestionForm(FlaskForm):
+    question = StringField('question', validators=[DataRequired()])
+    kind = SelectField('Тип вопроса')
+    options = FieldList(SelectField('options'))
+
+
+class NewPollForm(FlaskForm):
+    questions = FieldList('questions', QuestionForm())
     title = StringField('title', validators=[DataRequired()])
     kind = SelectField('kind', choices=[('poll', 'Опрос'), ('vote', 'Голосование')])
     repeat_type = SelectField('repeat_type',
@@ -23,4 +29,4 @@ class NewPoll(FlaskForm):
                                        ('revote', 'Повторное голосование'),
                                        ('multiple voting', 'Множественное голосование')])
     access_participation = SelectMultipleField('Кто может участвовать', coerce=int)
-    access_results = SelectMultipleField('Кто может участвовать', coerce=int)
+    access_results = SelectMultipleField('Кто может видеть результаты', coerce=int)

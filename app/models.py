@@ -59,7 +59,7 @@ class Question(db.Model):
 class PossibleAnswer(db.Model):
     __tablename__ = 'possible_answer'
 
-    text = db.Column(db.String(), nullable=False)
+    option = db.Column(db.String(), nullable=False)
     question_id = db.Column(db.Integer(), db.ForeignKey('question.id'))
     question = relationship('Question')
 
