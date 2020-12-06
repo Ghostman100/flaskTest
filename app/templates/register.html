@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Регистрация</h1>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul class=flashes>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <form action="" method="POST" name="login">
+        {{ form.hidden_tag() }}
+        <p>
+            Логин:<br>
+            {{ form.login(size=50) }}<br>
+        </p>
+        <p>
+            Пароль:<br>
+            {{ form.password1(size=50, minlength=4) }}<br>
+        </p>
+        <p>
+            Пароль:<br>
+            {{ form.password2(size=50, minlength=4) }}<br>
+        </p>
+        <p><a href="{{ url_for('login_page') }}">Уже есть аккаунт?</a></p>
+
+        <p><input type="submit" value="Зарегистрироваться"></p>
+    </form>
+{% endblock %}
