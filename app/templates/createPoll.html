@@ -1,29 +1,39 @@
 {% extends "base.html" %}
 
-<div>
-    <h2>Создание нового голосования</h2>
-    <form action="" method="POST" name="create_poll">
-        {% if kind == 'poll' %}
+{% block content %}
+    <div>
+        <h2>Создание нового голосования</h2>
+        <form action="" method="POST" name="create_poll">
             {{ form.hidden_tag() }}
+            <p>
+                <label>Название:</label><br/>
+                {{ form.title() }}
+            </p>
+            <p>
+                <label>Тип голосования:</label>
+                {{ form.kind(class="custom-select") }}
+            </p>
+            <p>
+                <label>Возможность повторного голосования:</label>
+                {{ form.repeat_type(class="custom-select") }}
+            </p>
+            <p>
+                {{ form.access_participation.label }}
+                {{ form.access_participation(class="custom-select") }}
+            </p>
+            <p>
+                {{ form.access_results.label }}
+                {{ form.access_results(class="custom-select") }}
+            </p>
+            <p>
+                <label>Вопросы:</label>
+                {#                {% for l in form.questions %}#}
+                {#                    {{ l.form.city }}#}
+                {#                {% endfor %}#}
+                {{ form.questions() }}
+            </p>
+            <button type="submit" class="btn btn-primary">Создать</button>
+        </form>
+    </div>
 
-            <p>
-                <label>Название</label>
-                {{ form.title }}
-            </p>
-            <p>
-                <label>Тип голосования</label>
-                {{ form.kind }}
-            </p>
-            <p>
-                <label>Возможность повторного голосования</label>
-                {{ form.repeat_type }}
-            </p>
-            <p>
-                <label>Вопросы</label>
-                {{ form.questions }}
-            </p>
-        {% else %}
-
-        {% endif %}
-    </form>
-</div>
+{% endblock %}

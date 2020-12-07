@@ -1,4 +1,4 @@
-from wtforms import StringField, PasswordField, FieldList, SelectField, SelectMultipleField
+from wtforms import StringField, PasswordField, FieldList, SelectField, SelectMultipleField, FormField
 from wtforms.validators import DataRequired, Length
 from flask_wtf import FlaskForm
 
@@ -15,14 +15,15 @@ class RegisterForm(FlaskForm):
 
 
 class QuestionForm(FlaskForm):
-    question = StringField('question', validators=[DataRequired()])
-    kind = SelectField('Тип вопроса')
-    options = FieldList(SelectField('options'))
+    question = StringField('question', validators=[DataRequired()], render_kw={'class': 'form-group'})
+    kind = SelectField('Тип вопроса', choices=[('variants', 'Варианты ответа'), ('text', 'Свободный ответ')],
+                       render_kw={'class': "custom-select"})
+    options = FieldList(StringField('options', render_kw={'class': 'form-group'}), min_entries=3)
 
 
 class NewPollForm(FlaskForm):
-    questions = FieldList('questions', QuestionForm())
-    title = StringField('title', validators=[DataRequired()])
+    questions = FieldList(FormField(QuestionForm), min_entries=2)
+    title = StringField('title', validators=[DataRequired()], render_kw={'class': 'form-group'})
     kind = SelectField('kind', choices=[('poll', 'Опрос'), ('vote', 'Голосование')])
     repeat_type = SelectField('repeat_type',
                               choices=[('no repeat', 'Без повторов'),

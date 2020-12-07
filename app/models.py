@@ -1,6 +1,7 @@
 from flask_login import UserMixin
 from sqlalchemy.orm import relationship
 from datetime import datetime
+
 from app import db
 
 
@@ -21,7 +22,7 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     login = db.Column(db.String(50), nullable=False, unique=True)
     password_hash = db.Column(db.String(100), nullable=False)
-    polls = relationship('Poll')
+    polls = relationship('Poll', back_populates='creator')
 
 
 class Poll(db.Model):
@@ -29,19 +30,20 @@ class Poll(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     kind = db.Column(db.String(), nullable=False)
+    title = db.Column(db.String(), nullable=False)
     repeat_type = db.Column(db.String(), default='no repeat')
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    creator = relationship('User')
+    creator = relationship('User', back_populates='polls')
     created_on = db.Column(db.DateTime(), default=datetime.utcnow)
     access_participation = relationship(
         'User',
         secondary=user_poll_participate_access_table,
-        back_populates='participation_in_poll')
+        backref='participation_in_poll')
     access_results = relationship(
         'User',
         secondary=user_poll_results_access_table,
-        back_populates='available_for_viewing_results')
-    questions = relationship('Question')
+        backref='available_for_viewing_results')
+    questions = relationship('Question', back_populates='poll', cascade="all, delete-orphan")
 
 
 class Question(db.Model):
@@ -51,25 +53,29 @@ class Question(db.Model):
     type = db.Column(db.String(), nullable=False)
     question = db.Column(db.String(), nullable=False)
     poll_id = db.Column(db.Integer, db.ForeignKey('poll.id'))
-    poll = relationship('Poll')
-    answers = relationship('Answer')
-    possible_answers = relationship('PossibleAnswer')
+    poll = relationship('Poll', back_populates='questions')
+    answers = relationship('Answer', back_populates='question', cascade="all, delete-orphan")
+    possible_answers = relationship('PossibleAnswer', back_populates='question', cascade="all, delete-orphan")
 
 
 class PossibleAnswer(db.Model):
     __tablename__ = 'possible_answer'
 
+    id = db.Column(db.Integer, primary_key=True)
     option = db.Column(db.String(), nullable=False)
     question_id = db.Column(db.Integer(), db.ForeignKey('question.id'))
-    question = relationship('Question')
+    question = relationship('Question', back_populates='possible_answers')
+    answers = relationship('Answer', back_populates='selected_option')
 
 
 class Answer(db.Model):
     __tablename__ = 'answer'
 
     id = db.Column(db.Integer, primary_key=True)
-    answer = db.Column(db.String(), nullable=False)
+    answer = db.Column(db.String())
+    possible_answer_id = db.Column(db.Integer, db.ForeignKey('possible_answer.id'))
+    selected_option = relationship('PossibleAnswer', back_populates='answers')
     question_id = db.Column(db.Integer, db.ForeignKey('question.id'))
-    question = relationship('Question')
-    user = db.Column(db.Integer, db.ForeignKey('user.id'))
+    question = relationship('Question', back_populates='answers')
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     created_on = db.Column(db.DateTime(), default=datetime.utcnow)

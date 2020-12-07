@@ -2,7 +2,18 @@
 
 {% block content %}
     <h1>{% block title %} Welcome to Poll {% endblock %}</h1>
-    {% if current_user.is_authenticated %}
-        Hi {{ current_user.login }}!
-    {% endif %}
+    <div>
+        {% for poll in polls %}
+            <div>
+                <h3>{{ poll.title }}</h3>
+                <a href="#">
+                    <button class="btn btn-primary">Результаты</button>
+                </a>
+                <a href="#">
+                    <button class="btn btn-primary">Пройти опрос</button>
+                </a>
+
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}
