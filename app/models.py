@@ -57,8 +57,8 @@ class Question(db.Model):
     type = db.Column(db.String(), nullable=False)
     question = db.Column(db.String(), nullable=False)
     poll_id = db.Column(db.Integer, db.ForeignKey('poll.id'))
-    multiple_answers = db.Column(db.Boolean, default=False)
     poll = relationship('Poll', back_populates='questions')
+    multiple_answers = db.Column(db.Boolean, default=False)
     answers = relationship('Answer', back_populates='question', cascade="all, delete-orphan")
     possible_answers = relationship('PossibleAnswer', back_populates='question', cascade="all, delete-orphan")
 

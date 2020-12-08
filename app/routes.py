@@ -216,7 +216,6 @@ def answer(poll_id):
     poll = Poll.query.get_or_404(poll_id)
 
     if current_user != poll.creator:
-        print(current_user not in poll.access_participation)
         if current_user not in poll.access_participation:
             if current_user in poll.access_results:
                 return redirect(url_for('results', poll_id=poll_id))
