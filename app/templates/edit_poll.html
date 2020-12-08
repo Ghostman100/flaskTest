@@ -3,37 +3,7 @@
 {% block content %}
     <div>
         <h2>Изменить голосования</h2>
-        <form action="" method="POST" name="edit_poll">
-            {{ form.hidden_tag() }}
-            <p>
-                <label>Название:</label><br/>
-                {{ form.title() }}
-            </p>
-            <p>
-                <label>Тип голосования:</label>
-                {{ form.kind(class="custom-select") }}
-            </p>
-            <p>
-                <label>Возможность повторного голосования:</label>
-                {{ form.repeat_type() }}
-            </p>
-            <p>
-                {{ form.access_participation.label }}
-                {{ form.access_participation(class="custom-select") }}
-            </p>
-            <p>
-                {{ form.access_results.label }}
-                {{ form.access_results(class="custom-select") }}
-            </p>
-            <p>
-                <label>Вопросы:</label>
-                {#                {% for l in form.questions %}#}
-                {#                    {{ l.form.city }}#}
-                {#                {% endfor %}#}
-                {{ form.questions() }}
-            </p>
-            <button type="submit" class="btn btn-primary">Сохранить</button>
-        </form>
+        {% include 'poll_form.html' %}
     </div>
 
 {% endblock %}

@@ -1,0 +1,24 @@
+<form action="" method="POST" name="poll">
+            {{ form.hidden_tag() }}
+            <p>
+                <label>Название:</label><br/>
+                {{ form.title() }}
+            </p>
+            <p>
+                <label>Возможность повторного голосования:</label>
+                {{ form.repeat_type() }}
+            </p>
+            <p>
+                {{ form.access_participation.label }}
+                {{ form.access_participation(class="custom-select") }}
+            </p>
+            <p>
+                {{ form.access_results.label }}
+                {{ form.access_results(class="custom-select") }}
+            </p>
+            <p>
+                <label>Вопросы:</label>
+                {{ form.questions() }}
+            </p>
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+        </form>

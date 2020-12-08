@@ -44,21 +44,16 @@ def view_poll(poll_id):
 def create():
     users = [(user.id, user.login) for user in User.query.all()]
     form = PollForm()
-    form.questions.append_entry() # add 5 form
-    form.questions.append_entry()
-    form.questions.append_entry()
-    form.questions.append_entry()
-    form.questions.append_entry()
     form.access_participation.choices = users
     form.access_results.choices = users
     if form.validate_on_submit():
         new_poll = Poll(title=form.title.data, kind='poll', repeat_type=form.repeat_type.data,
                         creator=current_user)
-        for participant_id in form.access_participation:
-            new_poll.access_participation.append(User.query.get(int(participant_id.data)))
+        for participant_id in form.access_participation.data:
+            new_poll.access_participation.append(User.query.get(int(participant_id)))
 
-        for user_id in form.access_results:
-            new_poll.access_results.append(User.query.get(int(user_id.data)))
+        for user_id in form.access_results.data:
+            new_poll.access_results.append(User.query.get(int(user_id)))
 
         for question in form.questions:
             if question.question.data:
@@ -77,6 +72,11 @@ def create():
         db.session.commit()
         return redirect(url_for('index'))
     else:
+        form.questions.append_entry()  # add 5 form
+        form.questions.append_entry()
+        form.questions.append_entry()
+        form.questions.append_entry()
+        form.questions.append_entry()
         return render_template('createPoll.html', form=form)
 
 
@@ -121,53 +121,29 @@ def edit_poll(poll_id):
 
     if poll.creator != current_user:
         return redirect(url_for('view_poll', poll_id=poll.id))
-    # questions_data = []
-    data = {
-        'title': poll.title,
-        'kind': poll.kind,
-        'repeat_type': poll.repeat_type,
-        'access_participation': [str(user.id) for user in poll.access_participation],
-        'access_results': [str(user.id) for user in poll.access_results],
-        # 'questions': questions_data
-    }
 
-    form = PollForm(data=data)
+    form = PollForm()
     form.access_participation.choices = users
     form.access_results.choices = users
 
-    for question in poll.questions:
-        if question.type == 'variants':
-
-            form.questions.append_entry({
-                'kind': question.type,
-                'question': question.question,
-                'multiple_answers': question.multiple_answers,
-                'options': [option.option for option in question.possible_answers]
-            })
-        else:
-            form.questions.append_entry({
-                'kind': question.type,
-                'multiple_answers': question.multiple_answers,
-                'question': question.question
-            })
-
     if form.validate_on_submit():
         poll.title = form.title.data
-        poll.kind = form.kind.data
         poll.repeat_type = form.repeat_type.data
         if form.access_participation:
-            for participant_id in form.access_participation:
+            print(form.access_participation.data)
+            for participant_id in form.access_participation.data:
                 poll.access_participation.clear()
-                poll.access_participation.append(User.query.get(int(participant_id.data)))
+                poll.access_participation.append(User.query.get(int(participant_id)))
         else:
             poll.access_participation.clear()
 
         if form.access_results:
-            for user_id in form.access_results:
+            for user_id in form.access_results.data:
+                print('asdas', User.query.get(int(user_id)))
                 poll.access_results.clear()
-                poll.access_results.append(User.query.get(int(user_id.data)))
-            else:
-                poll.access_results.clear()
+                poll.access_results.append(User.query.get(int(user_id)))
+        else:
+            poll.access_results.clear()
 
         for i in range(len(poll.questions)):
             question = poll.questions[i]
@@ -190,7 +166,34 @@ def edit_poll(poll_id):
 
         db.session.add(poll)
         db.session.commit()
-        return redirect(url_for('index'))
+        return redirect(url_for('view_poll', poll_id=poll.id))
+
+    # data = {
+    #
+    #     'repeat_type': poll.repeat_type,
+    #     'access_participation': [str(user.id) for user in poll.access_participation],
+    #     'access_results': [str(user.id) for user in poll.access_results],
+    # }
+    form.title.data = poll.title
+    form.repeat_type.data = poll.repeat_type
+    form.access_participation.data = [str(user.id) for user in poll.access_participation]
+    form.title.access_results = [str(user.id) for user in poll.access_results]
+
+    for question in poll.questions:
+        if question.type == 'variants':
+
+            form.questions.append_entry({
+                'kind': question.type,
+                'question': question.question,
+                'multiple_answers': question.multiple_answers,
+                'options': [option.option for option in question.possible_answers]
+            })
+        else:
+            form.questions.append_entry({
+                'kind': question.type,
+                'multiple_answers': question.multiple_answers,
+                'question': question.question
+            })
 
     return render_template('edit_poll.html', form=form)
 
@@ -220,7 +223,7 @@ def answer(poll_id):
                 return redirect(url_for('view_poll', poll_id=poll_id))
 
     if poll.participation_in(current_user) and poll.repeat_type == 'false':
-        if current_user in poll.access_results:
+        if current_user in poll.access_results or current_user == poll.creator:
             return redirect(url_for('results', poll_id=poll_id))
         else:
             return redirect(url_for('my_answers', poll_id=poll_id))
@@ -271,17 +274,19 @@ def results(poll_id):
             return redirect(url_for('view_poll', poll_id=poll_id))
 
     all_answers = {}
-    for user in (set(poll.access_participation) | {current_user}):
+    for user in (set(poll.access_participation) | {poll.creator}):
         user_answers = {}
         for question in poll.questions:
             question_answers = {'type': question.type, 'answers': []}
-            for answer in Answer.query.filter_by(question=question, user=user):
-                if question.type == 'variants':
-                    question_answers['answers'].append([option.option for option in answer.selected_option])
-                else:
-                    question_answers['answers'].append(answer.answer)
-            user_answers[question.question] = question_answers
-        all_answers[user.login] = user_answers
+            if Answer.query.filter_by(question=question, user=user).all():
+                for answer in Answer.query.filter_by(question=question, user=user):
+                    if question.type == 'variants':
+                        question_answers['answers'].append([option.option for option in answer.selected_option])
+                    else:
+                        question_answers['answers'].append(answer.answer)
+                user_answers[question.question] = question_answers
+        if user_answers:
+            all_answers[user.login] = user_answers
 
     return render_template('results.html', poll=poll, answers=all_answers)
 
@@ -298,13 +303,15 @@ def upload_results(poll_id):
         user_answers = {}
         for question in poll.questions:
             question_answers = {'type': question.type, 'answers': []}
-            for answer in Answer.query.filter_by(question=question, user=user):
-                if question.type == 'variants':
-                    question_answers['answers'].append([option.option for option in answer.selected_option])
-                else:
-                    question_answers['answers'].append(answer.answer)
-            user_answers[question.question] = question_answers
-        all_answers[user.login] = user_answers
+            if Answer.query.filter_by(question=question, user=user).all():
+                for answer in Answer.query.filter_by(question=question, user=user):
+                    if question.type == 'variants':
+                        question_answers['answers'].append([option.option for option in answer.selected_option])
+                    else:
+                        question_answers['answers'].append(answer.answer)
+                user_answers[question.question] = question_answers
+        if user_answers:
+            all_answers[user.login] = user_answers
     return jsonify(all_answers)
 
 
@@ -364,7 +371,7 @@ def my_answers(poll_id):
         user_answers[question.question] = question_answers
     all_answers[current_user.login] = user_answers
 
-    return render_template('results.html', poll=poll, answers=all_answers)
+    return render_template('results.html', poll=poll, answers=all_answers, my=True)
 
 
 @app.route('/profile/available')

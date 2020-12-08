@@ -70,7 +70,7 @@
 ```
 /api/poll/<int:poll_id>/answer
 {
-	"user_id": 1,
+	"user_login": "admin",
 	"answers": [
 		{
 			"question_id": 6,
@@ -82,7 +82,7 @@
 		},
 		{
 			"question_id": 8,
-			"multiple_answers": 10
+			"select_answer": 10
 		}
 	]
 }

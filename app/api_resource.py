@@ -27,10 +27,10 @@ class AnswerResource(Resource):
     def post(self, poll_id):
         poll = Poll.query.get_or_404(poll_id)
         parser = reqparse.RequestParser()
-        parser.add_argument("user_id", type=int)
+        parser.add_argument("user_login", type=str)
         parser.add_argument("answers", type=dict, action="append")
         answers = parser.parse_args()
-        user = User.query.get_or_404(answers.user_id)
+        user = User.query.filter_by(login=answers.user_login).first()
         print(answers, user)
         for question in poll.questions:
             id_in_json = False

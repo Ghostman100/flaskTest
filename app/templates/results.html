@@ -1,7 +1,11 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h2>Результаты опроса "{{ poll.title }}"</h2>
+    {% if my %}
+        <h2>Мои результаты опроса "{{ poll.title }}"</h2>
+    {% else %}
+        <h2>Результаты опроса "{{ poll.title }}"</h2>
+    {% endif %}
     {% if current_user == poll.creator %}
         <a href="{{ url_for('upload_results', poll_id=poll.id) }}">
             <button class="btn btn-primary">Скачать результаты</button>
