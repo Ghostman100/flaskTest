@@ -23,6 +23,7 @@ class User(db.Model, UserMixin):
     login = db.Column(db.String(50), nullable=False, unique=True)
     password_hash = db.Column(db.String(100), nullable=False)
     polls = relationship('Poll', back_populates='creator')
+    answers = relationship('Answer', back_populates='user', lazy='joined')
 
 
 class Poll(db.Model):
@@ -31,7 +32,7 @@ class Poll(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     kind = db.Column(db.String(), nullable=False)
     title = db.Column(db.String(), nullable=False)
-    repeat_type = db.Column(db.String(), default='no repeat')
+    repeat_type = db.Column(db.Boolean(), default=False)
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     creator = relationship('User', back_populates='polls')
     created_on = db.Column(db.DateTime(), default=datetime.utcnow)
@@ -45,6 +46,9 @@ class Poll(db.Model):
         backref='available_for_viewing_results')
     questions = relationship('Question', back_populates='poll', cascade="all, delete-orphan")
 
+    def participation_in(self, user):
+        return bool(Answer.query.filter_by(user=user, question=self.questions[0]).first())
+
 
 class Question(db.Model):
     __tablename__ = 'question'
@@ -53,6 +57,7 @@ class Question(db.Model):
     type = db.Column(db.String(), nullable=False)
     question = db.Column(db.String(), nullable=False)
     poll_id = db.Column(db.Integer, db.ForeignKey('poll.id'))
+    multiple_answers = db.Column(db.Boolean, default=False)
     poll = relationship('Poll', back_populates='questions')
     answers = relationship('Answer', back_populates='question', cascade="all, delete-orphan")
     possible_answers = relationship('PossibleAnswer', back_populates='question', cascade="all, delete-orphan")
@@ -65,7 +70,13 @@ class PossibleAnswer(db.Model):
     option = db.Column(db.String(), nullable=False)
     question_id = db.Column(db.Integer(), db.ForeignKey('question.id'))
     question = relationship('Question', back_populates='possible_answers')
-    answers = relationship('Answer', back_populates='selected_option')
+
+
+answers_selected_option_table = db.Table('selected_option', db.Model.metadata,
+                                         db.Column('answer_id', db.Integer, db.ForeignKey('answer.id')),
+                                         db.Column('possible_answer_id', db.Integer,
+                                                   db.ForeignKey('possible_answer.id'))
+                                         )
 
 
 class Answer(db.Model):
@@ -73,9 +84,14 @@ class Answer(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     answer = db.Column(db.String())
-    possible_answer_id = db.Column(db.Integer, db.ForeignKey('possible_answer.id'))
-    selected_option = relationship('PossibleAnswer', back_populates='answers')
+    # possible_answer_id = db.Column(db.Integer, db.ForeignKey('possible_answer.id'))
+    # selected_option = relationship('PossibleAnswer', back_populates='answers')
     question_id = db.Column(db.Integer, db.ForeignKey('question.id'))
     question = relationship('Question', back_populates='answers')
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = relationship('User', back_populates='answers')
     created_on = db.Column(db.DateTime(), default=datetime.utcnow)
+    selected_option = relationship(
+        'PossibleAnswer',
+        secondary=answers_selected_option_table,
+        backref='answers')

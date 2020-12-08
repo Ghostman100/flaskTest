@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>{{ poll.title }}</h2>
+    <p>Тип: {{ poll_types[poll.kind] }}</p>
+    <p>Возможность повторного голосования: {{ poll.repeat_type }}</p>
+    <p>Создатель: {{ poll.creator.login }}</p>
+    <div>
+        <p>Кто может участвовать</p>
+        <ul>
+            {% for user in poll.access_participation %}
+                <li>{{ user.login }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    Кто может видеть результаты:
+    <ul>
+        {% for user in poll.access_results %}
+            <li>{{ user.login }}</li>
+        {% endfor %}
+    </ul>
+    <div>
+        <p>Вопросы:</p>
+        <ul>
+            {% for question in poll.questions %}
+                <li>
+                    <p>{{ question.question }}</p>
+                <p>Множественное голосование
+                {% if question.multiple_answers %}
+                Доступно
+                {% else %}
+                Не доступно
+                {% endif %}
+                </p>
+                    {% if question.type  == 'variants' %}
+                        Варианты ответа:
+                        <ul>
+                            {% for option in question.possible_answers %}
+                                <li>{{ option.option }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% if current_user == poll.creator or current_user in poll.access_results %}
+        <a href="{{ url_for('results', poll_id=poll.id)}}">
+            <button class="btn btn-primary">Посмотреть результаты</button>
+        </a>
+    {% endif %}
+    {% if current_user == poll.creator or current_user in poll.access_participation %}
+        <a href="{{ url_for('answer', poll_id=poll.id) }}">
+            <button class="btn btn-primary">Пройти опрос</button>
+        </a>
+    {% endif %}
+    {% if current_user == poll.creator %}
+        <a href="{{ url_for('edit_poll', poll_id=poll.id) }}">
+            <button class="btn btn-primary">Изменить опрос</button>
+        </a>
+    {% endif %}
+    {% if current_user == poll.creator %}
+        <a href="{{ url_for('delete_poll', poll_id=poll.id) }}">
+            <button class="btn btn-danger">Удалить опрос</button>
+        </a>
+    {% endif %}
+{% endblock %}

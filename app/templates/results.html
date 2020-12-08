@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Результаты опроса "{{ poll.title }}"</h2>
+    {% if current_user == poll.creator %}
+        <a href="{{ url_for('upload_results', poll_id=poll.id) }}">
+            <button class="btn btn-primary">Скачать результаты</button>
+        </a>
+    {% endif %}
+    {% for user in answers %}
+        <div style="background-color: #11111111;">
+            <h3>Пользователь: {{ user }}</h3>
+            {% for question in answers[user] %}
+                <p>{{ question }}</p>
+                <ul>
+                    {% for answer in answers[user][question]['answers'] %}
+                        {% if answers[user][question]['type'] == 'text' %}
+                            <li>{{ answer }}</li>
+                        {% else %}
+                            <li>
+                                {% for option in answer %}
+                                    '{{ option }}'
+                                {% endfor %}
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            {% endfor %}
+        </div>
+    {% endfor %}
+{% endblock %}

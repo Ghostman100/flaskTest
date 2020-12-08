@@ -23,14 +23,24 @@
         <ul class="navbar-nav mr-auto">
             {% if current_user.is_authenticated %}
                 <li class="nav-item active">
-                    <div class="navbar-text">{{ current_user.login }}</div>
+                <a class="nav-link" href="{{ url_for('own_polls') }}">
+                    <button class="btn btn-light">Мои опросы</button>
+                </a>
                 </li>
+                <li class="nav-item active">
+                <a class="nav-link" href="{{ url_for('available_polls') }}">
+                    <button class="btn btn-light">Доступные опросы</button>
+                </a>
+                </li>
+
+                    <span class="navbar-text" style="align-self: center;">{{ current_user.login }}</span>
+
                 <li class="nav-item active"><a class="nav-link" href="{{ url_for('logout') }}">
-                    Выход
+                    <button class="btn btn-light">Выход</button>
                 </a></li>
             {% else %}
                 <li class="nav-item active"><a class="nav-link" href="{{ url_for('login_page') }}">
-                    Войти
+                    <button class="btn btn-light">Войти</button>
                 </a></li>
             {% endif %}
 

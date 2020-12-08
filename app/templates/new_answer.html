@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div>
+        <h2>Опрос</h2>
+        <form action="" method="POST" name="create_answer">
+            {{ form.hidden_tag() }}
+            {% for answer in form.answers %}
+                {{ answer.question_id() }}
+                {{ answer.kind() }}
+                <p>{{ answer.label }}</p>
+                <p>
+                    {% if answer.kind.data == 'select' %}
+                        {{ answer.selected_option() }}
+                    {% elif answer.kind.data == 'multiSelect' %}
+                        {{ answer.multi_selected_option() }}
+                    {% else %}
+                        {{ answer.text_answer() }}
+                    {% endif %}
+                </p>
+            {% endfor %}
+        <button type="submit" class="btn btn-primary">Создать</button>
+        </form>
+    </div>
+{% endblock %}

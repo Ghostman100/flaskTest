@@ -3,6 +3,8 @@
 {% block content %}
     <div>
         <h2>Создание нового голосования</h2>
+
+        {{ form.errors }}
         <form action="" method="POST" name="create_poll">
             {{ form.hidden_tag() }}
             <p>
@@ -23,8 +25,27 @@
             </p>
             <p>
                 <label>Вопросы:</label>
-                {{ form.questions() }}
-            </p>
+                {% for question in form.vote_questions %}
+                    {{ question.hidden_tag() }}
+                    <table id="questions-0">
+                        <tbody>
+                        <tr>
+                            <th>{{ question.question.label }}</th>
+                            <td>{{ question.question }}</td>
+                        </tr>
+                        <tr>
+                            <th>{{ question.multiple_answers.label }}</th>
+                            <td>{{ question.multiple_answers }}</td>
+                        </tr>
+                        <tr>
+                            <th>{{ question.options.label }}</th>
+                            <td>
+                                {{ question.options() }}
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                {% endfor %}
             <button type="submit" class="btn btn-primary">Создать</button>
         </form>
     </div>

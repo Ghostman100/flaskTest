@@ -5,9 +5,6 @@
     <a href="{{ url_for('create') }}">
         <button class="btn btn-primary">Созать Опрос</button>
     </a>
-        <a href="{{ url_for('create_vote') }}">
-        <button class="btn btn-primary">Созать Голосование</button>
-    </a>
     <div>
         {% for poll in polls %}
             <div>
