@@ -110,8 +110,6 @@ def create_vote():
             return redirect(url_for('index'))
     if len(form.questions) == 0:
         form.vote_questions.append_entry()
-    else:
-        print(form.questions[0].kind.data)
     return render_template('createVote.html', form=form)
 
 
@@ -156,7 +154,6 @@ def edit_poll(poll_id):
     if form.validate_on_submit():
         poll.title = form.title.data
         poll.kind = form.kind.data
-        print(form.repeat_type.data)
         poll.repeat_type = form.repeat_type.data
         if form.access_participation:
             for participant_id in form.access_participation:
@@ -237,7 +234,6 @@ def answer(poll_id):
             if question.type == 'variants':
                 if question.multiple_answers:
                     for option in form_answer.multi_selected_option.data:
-                        print(option)
                         new_answer.selected_option.append(PossibleAnswer.query.get(option))
                 else:
                     new_answer.selected_option.append(PossibleAnswer.query.get(form_answer.selected_option.data))

@@ -15,7 +15,7 @@ class RegisterForm(FlaskForm):
 
 
 class AnswerForm(FlaskForm):
-    text_answer = StringField('Ответ', render_kw={'class': 'form-group'})
+    text_answer = TextAreaField('Ответ', render_kw={'class': 'form-group'})
     selected_option = SelectField('Вариант', render_kw={'class': "custom-select"}, choices=[], coerce=int)
     multi_selected_option = SelectMultipleField('Вариант', render_kw={'class': 'custom-select'}, choices=[], coerce=int)
     kind = HiddenField()

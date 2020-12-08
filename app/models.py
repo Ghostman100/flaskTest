@@ -1,9 +1,10 @@
 from flask_login import UserMixin
 from sqlalchemy.orm import relationship
 from datetime import datetime
+from flask_sqlalchemy import SQLAlchemy
 
-from app import db
 
+db = SQLAlchemy()
 
 user_poll_participate_access_table = db.Table('participate_access', db.Model.metadata,
                                               db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
